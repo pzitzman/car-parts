@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  documentdb:
+    image: ghcr.io/documentdb/documentdb/documentdb-local:latest
+    container_name: carparts-db
+    ports:
+      - "10260:10260"
+    environment:
+      - USERNAME=admin
+      - PASSWORD=password
