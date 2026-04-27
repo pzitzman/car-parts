@@ -4,6 +4,8 @@ builder.Services.Configure<backend.Data.Mongo.DocumentDbSettings>(
     builder.Configuration.GetSection("DocumentDbSettings")
 );
 
+builder.Services.AddScoped<backend.Model.CarPartModel>();
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

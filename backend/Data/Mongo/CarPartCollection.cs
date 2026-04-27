@@ -12,12 +12,22 @@ namespace backend.Data.Mongo
 
         public CarPartCollection(IOptions<DocumentDbSettings> documentDbSettings)
         {
-            // Initialize MongoClient, get DB and bind CarPart
+            // Initializing
             var mongoClient = new MongoClient(documentDbSettings.Value.ConnectionString);
             var mongoDatabase = mongoClient.GetDatabase(documentDbSettings.Value.DatabaseName);
             _carPartsCollection = mongoDatabase.GetCollection<CarPart>(
                 documentDbSettings.Value.CollectionName
             );
+        }
+
+        public async Task<List<CarPart>> GetAllAsync()
+        {
+            return await _carPartsCollection.Find(_ => true).ToListAsync();
+        }
+
+        public async Task UpdateAsync(string id, CarPart updaatePart)
+        {
+            await _carPartsCollection.ReplaceOneAsync(part => part.Id == id, updaatePart);
         }
     }
 }
