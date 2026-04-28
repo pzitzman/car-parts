@@ -14,9 +14,6 @@ namespace backend.Data.Entity
         [BsonElement("name")]
         public string Name { get; set; } = string.Empty;
 
-        [BsonElement("machineId")]
-        public string MachineId { get; set; } = string.Empty;
-
         [BsonElement("partNumber")]
         public string PartNumber { get; set; } = string.Empty;
 
