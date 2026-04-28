@@ -1,4 +1,5 @@
 using backend.Data.Entity;
+using backend.DTOs;
 using backend.Model;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,20 +17,36 @@ namespace backend.Controller
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CarPart>>> Get()
+        public async Task<ActionResult<List<CarPartGetDto>>> Get()
         {
             var parts = await _carPartModel.GetAllCarPartsAsync();
-            return Ok(parts);
+
+            var dtos = parts
+                .Select(part => new CarPartGetDto
+                {
+                    Id = part.Id,
+                    Name = part.Name,
+                    PartNumber = part.PartNumber,
+                    Description = part.Description,
+                })
+                .ToList();
+
+            return Ok(dtos);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(string id, [FromBody] CarPart updatedPart)
+        public async Task<IActionResult> Put(string id, [FromBody] CarPartUpdateDto updatedPartDto)
         {
-            if (id != updatedPart.Id)
+            var carPartToUpdate = new CarPart
             {
-                return BadRequest("Missmatch between body ID and URL ID");
-            }
-            await _carPartModel.UpdateCarPartAsync(id, updatedPart);
+                Id = id,
+                Name = updatedPartDto.Name,
+                PartNumber = updatedPartDto.PartNumber,
+                Description = updatedPartDto.Description,
+            };
+
+            await _carPartModel.UpdateCarPartAsync(id, carPartToUpdate);
+
             return NoContent();
         }
     }
