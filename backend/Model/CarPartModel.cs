@@ -20,6 +20,11 @@ namespace backend.Model
             return await _carPartsCollection.GetAllAsync();
         }
 
+        public async Task<CarPart> GetCarPartByIdAsync(string id)
+        {
+            return await _carPartsCollection.GetByIdAsync(id);
+        }
+
         public async Task UpdateCarPartAsync(string id, CarPart updatedPart)
         {
             var tempPart = await _carPartsCollection.GetByIdAsync(id);

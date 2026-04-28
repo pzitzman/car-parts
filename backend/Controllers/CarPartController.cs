@@ -36,6 +36,29 @@ namespace backend.Controller
             return Ok(dtos);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CarPartGetDto>> GetById(string id)
+        {
+            var tempPart = await _carPartModel.GetCarPartByIdAsync(id);
+
+            if (tempPart == null)
+            {
+                return NotFound($"Car Part not found with{id}");
+            }
+
+            var dto = new CarPartGetDto
+            {
+                Id = tempPart.Id,
+                Name = tempPart.Name,
+                PartNumber = tempPart.PartNumber,
+                Description = tempPart.Description,
+                CreatedAt = tempPart.CreatedAt,
+                UpdatedAt = tempPart.UpdatedAt,
+            };
+
+            return Ok(dto);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, [FromBody] CarPartUpdateDto updatedPartDto)
         {
