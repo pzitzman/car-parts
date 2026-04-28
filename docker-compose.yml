@@ -1,11 +1,11 @@
 version: "3.8"
 
 services:
-  documentdb:
-    image: ghcr.io/documentdb/documentdb/documentdb-local:latest
+  mongodb:
+    image: mongo:latest
     container_name: carparts-db
     ports:
-      - "10260:10260"
+      - "27017:27017"
     environment:
-      - USERNAME=admin
-      - PASSWORD=password
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password

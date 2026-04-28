@@ -1,0 +1,45 @@
+@hostname = http://localhost:5274
+@endpoint = {{hostname}}/api/carpart
+
+###
+
+# Create a car part.
+POST {{endpoint}}
+Content-Type: application/json
+
+{
+    "name": "Felge",
+    "partNumber": "9823902BSKES-FELGE",
+    "description": "Eine wunderschoene Felge"
+}
+
+###
+
+# Get all car parts.
+GET {{endpoint}}
+
+
+###
+
+# Get a single car part by id. Change @partId with the _id in the db.
+
+@partId = 69f0ee1dd04cbdc719450114 
+GET {{endpoint}}/{{partId}}
+
+###
+
+# Updated a car part by id.
+PUT {{endpoint}}/{{partId}}
+Content-Type: application/json
+
+{
+    "name": "Bremsscheibe ABC",
+    "partNumber": "123456789ABC-BS",
+    "description": "Eine wunderschoene Bremsscheibe"
+}
+
+###
+
+# Deletes a car part by id.
+DELETE {{endpoint}}{{partId}}
+

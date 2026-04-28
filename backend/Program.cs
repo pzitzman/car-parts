@@ -13,7 +13,6 @@ builder.Services.AddSingleton<IMongoClient>(ServiceProvider =>
     var connectionString = builder.Configuration.GetValue<string>(
         "DocumentDbSettings:ConnectionString"
     );
-
     return new MongoClient(connectionString);
 });
 
