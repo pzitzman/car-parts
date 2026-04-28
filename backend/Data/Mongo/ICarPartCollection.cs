@@ -9,5 +9,9 @@ namespace backend.Data.Mongo
         Task<List<CarPart>> GetAllAsync();
 
         Task UpdateAsync(string id, CarPart updatedpart);
+
+        Task<CarPart> GetByIdAsync(string id);
+
+        Task CreateAsync(CarPart newCarPart);
     }
 }

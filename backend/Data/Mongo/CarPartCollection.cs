@@ -29,5 +29,17 @@ namespace backend.Data.Mongo
         {
             await _carPartsCollection.ReplaceOneAsync(part => part.Id == id, updaatePart);
         }
+
+        public async Task<CarPart> GetByIdAsync(string id)
+        {
+            var tempId = Builders<CarPart>.Filter.Eq(part => part.Id, id);
+
+            return await _carPartsCollection.Find(tempId).FirstOrDefaultAsync();
+        }
+
+        public async Task CreateAsync(CarPart newCarPart)
+        {
+            await _carPartsCollection.InsertOneAsync(newCarPart);
+        }
     }
 }

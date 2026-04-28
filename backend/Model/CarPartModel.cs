@@ -20,9 +20,39 @@ namespace backend.Model
             return await _carPartsCollection.GetAllAsync();
         }
 
-        public async Task UpdateCarPartAsync(string id, CarPart updatedpart)
+        public async Task UpdateCarPartAsync(string id, CarPart updatedPart)
         {
-            await _carPartsCollection.UpdateAsync(id, updatedpart);
+            var tempPart = await _carPartsCollection.GetByIdAsync(id);
+            if (tempPart == null)
+            {
+                throw new ArgumentException("Part not found");
+            }
+
+            tempPart.Name = updatedPart.Name.Trim();
+            tempPart.PartNumber = updatedPart.PartNumber.Trim();
+            tempPart.Description = updatedPart.Description.Trim();
+
+            tempPart.UpdatedAt = DateTime.UtcNow;
+
+            await _carPartsCollection.UpdateAsync(id, tempPart);
+        }
+
+        public async Task CreateCarPartAsync(CarPart newCarPart)
+        {
+            if (newCarPart == null)
+            {
+                throw new ArgumentNullException(nameof(newCarPart));
+            }
+            if (string.IsNullOrWhiteSpace(newCarPart.Name))
+            {
+                throw new ArgumentException("Must have a name");
+            }
+
+            var now = DateTime.UtcNow;
+            newCarPart.CreatedAt = now;
+            newCarPart.UpdatedAt = now;
+
+            await _carPartsCollection.CreateAsync(newCarPart);
         }
     }
 }

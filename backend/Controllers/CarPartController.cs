@@ -28,6 +28,8 @@ namespace backend.Controller
                     Name = part.Name,
                     PartNumber = part.PartNumber,
                     Description = part.Description,
+                    CreatedAt = part.CreatedAt,
+                    UpdatedAt = part.UpdatedAt,
                 })
                 .ToList();
 
@@ -44,10 +46,30 @@ namespace backend.Controller
                 PartNumber = updatedPartDto.PartNumber,
                 Description = updatedPartDto.Description,
             };
+            try
+            {
+                await _carPartModel.UpdateCarPartAsync(id, carPartToUpdate);
+                return NoContent();
+            }
+            catch (ArgumentException)
+            {
+                return NotFound($"Car Part not found with{id}");
+            }
+        }
 
-            await _carPartModel.UpdateCarPartAsync(id, carPartToUpdate);
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CarPartCreateDto createPartDto)
+        {
+            var tempPart = new CarPart
+            {
+                Name = createPartDto.Name,
+                PartNumber = createPartDto.PartNumber,
+                Description = createPartDto.Description,
+            };
 
-            return NoContent();
+            await _carPartModel.CreateCarPartAsync(tempPart);
+
+            return CreatedAtAction(nameof(Get), new { id = tempPart.Id }, tempPart);
         }
     }
 }
