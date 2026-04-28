@@ -13,5 +13,7 @@ namespace backend.Data.Mongo
         Task<CarPart> GetByIdAsync(string id);
 
         Task CreateAsync(CarPart newCarPart);
+
+        Task<bool> DeleteAsync(string id);
     }
 }

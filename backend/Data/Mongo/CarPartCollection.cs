@@ -41,5 +41,14 @@ namespace backend.Data.Mongo
         {
             await _carPartsCollection.InsertOneAsync(newCarPart);
         }
+
+        public async Task<bool> DeleteAsync(string id)
+        {
+            var tempId = Builders<CarPart>.Filter.Eq(part => part.Id, id);
+
+            var result = await _carPartsCollection.DeleteOneAsync(tempId);
+
+            return result.DeletedCount > 0;
+        }
     }
 }

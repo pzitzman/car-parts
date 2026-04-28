@@ -74,9 +74,13 @@ namespace backend.Controller
                 await _carPartModel.UpdateCarPartAsync(id, carPartToUpdate);
                 return NoContent();
             }
-            catch (ArgumentException)
+            catch (KeyNotFoundException)
             {
                 return NotFound($"Car Part not found with{id}");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 
@@ -89,10 +93,29 @@ namespace backend.Controller
                 PartNumber = createPartDto.PartNumber,
                 Description = createPartDto.Description,
             };
+            try
+            {
+                await _carPartModel.CreateCarPartAsync(tempPart);
+                return CreatedAtAction(nameof(Get), new { id = tempPart.Id }, tempPart);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            await _carPartModel.CreateCarPartAsync(tempPart);
-
-            return CreatedAtAction(nameof(Get), new { id = tempPart.Id }, tempPart);
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                await _carPartModel.DeleteCarPartAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"Cannot delete. Car Part not found with{id}");
+            }
         }
     }
 }

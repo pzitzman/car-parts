@@ -30,7 +30,7 @@ namespace backend.Model
             var tempPart = await _carPartsCollection.GetByIdAsync(id);
             if (tempPart == null)
             {
-                throw new ArgumentException("Part not found");
+                throw new KeyNotFoundException("Part not found");
             }
 
             tempPart.Name = updatedPart.Name.Trim();
@@ -58,6 +58,16 @@ namespace backend.Model
             newCarPart.UpdatedAt = now;
 
             await _carPartsCollection.CreateAsync(newCarPart);
+        }
+
+        public async Task DeleteCarPartAsync(string id)
+        {
+            bool wasDeleted = await _carPartsCollection.DeleteAsync(id);
+
+            if (!wasDeleted)
+            {
+                throw new KeyNotFoundException($"Car Part not found with{id}");
+            }
         }
     }
 }
