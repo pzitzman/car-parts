@@ -62,6 +62,11 @@ namespace backend.Controller
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, [FromBody] CarPartUpdateDto updatedPartDto)
         {
+            if (updatedPartDto == null)
+            {
+                return BadRequest("Reqeust body missing");
+            }
+
             var carPartToUpdate = new CarPart
             {
                 Id = id,
@@ -87,6 +92,11 @@ namespace backend.Controller
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CarPartCreateDto createPartDto)
         {
+            if (createPartDto == null)
+            {
+                return BadRequest("Reqeust body missing");
+            }
+
             var tempPart = new CarPart
             {
                 Name = createPartDto.Name,
