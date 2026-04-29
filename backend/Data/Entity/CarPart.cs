@@ -1,5 +1,3 @@
-using System;
-using DnsClient.Protocol;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 

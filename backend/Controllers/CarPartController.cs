@@ -1,4 +1,3 @@
-using backend.Data.Entity;
 using backend.DTOs;
 using backend.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -19,69 +18,33 @@ namespace backend.Controller
         [HttpGet]
         public async Task<ActionResult<List<CarPartGetDto>>> Get()
         {
-            var parts = await _carPartModel.GetAllCarPartsAsync();
-
-            var dtos = parts
-                .Select(part => new CarPartGetDto
-                {
-                    Id = part.Id,
-                    Name = part.Name,
-                    PartNumber = part.PartNumber,
-                    Description = part.Description,
-                    CreatedAt = part.CreatedAt,
-                    UpdatedAt = part.UpdatedAt,
-                })
-                .ToList();
-
-            return Ok(dtos);
+            return Ok(await _carPartModel.GetAllCarPartsAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CarPartGetDto>> GetById(string id)
         {
-            var tempPart = await _carPartModel.GetCarPartByIdAsync(id);
-
-            if (tempPart == null)
+            try
             {
-                return NotFound($"Car Part not found with{id}");
+                return Ok(await _carPartModel.GetCarPartByIdAsync(id));
             }
-
-            var dto = new CarPartGetDto
+            catch (KeyNotFoundException e)
             {
-                Id = tempPart.Id,
-                Name = tempPart.Name,
-                PartNumber = tempPart.PartNumber,
-                Description = tempPart.Description,
-                CreatedAt = tempPart.CreatedAt,
-                UpdatedAt = tempPart.UpdatedAt,
-            };
-
-            return Ok(dto);
+                return NotFound(e.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(string id, [FromBody] CarPartUpdateDto updatedPartDto)
         {
-            if (updatedPartDto == null)
-            {
-                return BadRequest("Reqeust body missing");
-            }
-
-            var carPartToUpdate = new CarPart
-            {
-                Id = id,
-                Name = updatedPartDto.Name,
-                PartNumber = updatedPartDto.PartNumber,
-                Description = updatedPartDto.Description,
-            };
             try
             {
-                await _carPartModel.UpdateCarPartAsync(id, carPartToUpdate);
+                await _carPartModel.UpdateCarPartAsync(id, updatedPartDto);
                 return NoContent();
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException e)
             {
-                return NotFound($"Car Part not found with{id}");
+                return NotFound(e.Message);
             }
             catch (ArgumentException ex)
             {
@@ -92,21 +55,10 @@ namespace backend.Controller
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CarPartCreateDto createPartDto)
         {
-            if (createPartDto == null)
-            {
-                return BadRequest("Reqeust body missing");
-            }
-
-            var tempPart = new CarPart
-            {
-                Name = createPartDto.Name,
-                PartNumber = createPartDto.PartNumber,
-                Description = createPartDto.Description,
-            };
             try
             {
-                await _carPartModel.CreateCarPartAsync(tempPart);
-                return CreatedAtAction(nameof(Get), new { id = tempPart.Id }, tempPart);
+                var tempDto = await _carPartModel.CreateCarPartAsync(createPartDto);
+                return CreatedAtAction(nameof(GetById), new { id = tempDto.Id }, tempDto);
             }
             catch (ArgumentException ex)
             {

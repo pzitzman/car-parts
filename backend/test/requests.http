@@ -23,7 +23,7 @@ GET {{endpoint}}
 
 # Get a single car part by id. Change @partId with the _id in the db.
 
-@partId = 69f0ee1dd04cbdc719450114 
+@partId = PLACE_ID_HERE
 GET {{endpoint}}/{{partId}}
 
 ###
@@ -41,5 +41,5 @@ Content-Type: application/json
 ###
 
 # Deletes a car part by id.
-DELETE {{endpoint}}{{partId}}
+DELETE {{endpoint}}/{{partId}}
 

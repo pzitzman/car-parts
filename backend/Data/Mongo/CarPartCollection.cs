@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using backend.Data.Entity;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -10,10 +8,12 @@ namespace backend.Data.Mongo
     {
         private readonly IMongoCollection<CarPart> _carPartsCollection;
 
-        public CarPartCollection(IOptions<DocumentDbSettings> documentDbSettings)
+        public CarPartCollection(
+            IMongoClient mongoClient,
+            IOptions<DocumentDbSettings> documentDbSettings
+        )
         {
             // Initializing
-            var mongoClient = new MongoClient(documentDbSettings.Value.ConnectionString);
             var mongoDatabase = mongoClient.GetDatabase(documentDbSettings.Value.DatabaseName);
             _carPartsCollection = mongoDatabase.GetCollection<CarPart>(
                 documentDbSettings.Value.CollectionName
@@ -25,16 +25,20 @@ namespace backend.Data.Mongo
             return await _carPartsCollection.Find(_ => true).ToListAsync();
         }
 
-        public async Task UpdateAsync(string id, CarPart updaatePart)
+        public async Task<bool> UpdateAsync(string id, CarPart updaatePart)
         {
-            await _carPartsCollection.ReplaceOneAsync(part => part.Id == id, updaatePart);
+            var result = await _carPartsCollection.ReplaceOneAsync(
+                part => part.Id == id,
+                updaatePart
+            );
+            return result.ModifiedCount > 0;
         }
 
         public async Task<CarPart> GetByIdAsync(string id)
         {
-            var tempId = Builders<CarPart>.Filter.Eq(part => part.Id, id);
+            var temp = Builders<CarPart>.Filter.Eq(part => part.Id, id);
 
-            return await _carPartsCollection.Find(tempId).FirstOrDefaultAsync();
+            return await _carPartsCollection.Find(temp).FirstOrDefaultAsync();
         }
 
         public async Task CreateAsync(CarPart newCarPart)
@@ -44,9 +48,9 @@ namespace backend.Data.Mongo
 
         public async Task<bool> DeleteAsync(string id)
         {
-            var tempId = Builders<CarPart>.Filter.Eq(part => part.Id, id);
+            var temp = Builders<CarPart>.Filter.Eq(part => part.Id, id);
 
-            var result = await _carPartsCollection.DeleteOneAsync(tempId);
+            var result = await _carPartsCollection.DeleteOneAsync(temp);
 
             return result.DeletedCount > 0;
         }
