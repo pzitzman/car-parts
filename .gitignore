@@ -49,3 +49,9 @@ dist-ssr
 secrets.json
 appsettings.Development.json
 
+# ---xUnit ---
+**/TestResults/
+**/*.trx
+**/*.testresults
+**/*.coverage
+
