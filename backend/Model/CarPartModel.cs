@@ -50,7 +50,7 @@ namespace backend.Model
             };
         }
 
-        public async Task UpdateCarPartAsync(string id, CarPartUpdateDto updatedPart)
+        public async Task UpdateCarPartAsync(string id, CarPartDto updatedPart)
         {
             if (updatedPart == null)
             {
@@ -61,14 +61,10 @@ namespace backend.Model
             {
                 throw new KeyNotFoundException($"Car Part not found with{id}");
             }
-            if (string.IsNullOrWhiteSpace(tempPart.Name))
-            {
-                throw new ArgumentException("Must have a name");
-            }
 
-            tempPart.Name = updatedPart.Name.Trim();
-            tempPart.PartNumber = updatedPart.PartNumber.Trim();
-            tempPart.Description = updatedPart.Description.Trim();
+            tempPart.Name = updatedPart.Name;
+            tempPart.PartNumber = updatedPart.PartNumber;
+            tempPart.Description = updatedPart.Description;
             tempPart.UpdatedAt = DateTime.UtcNow;
 
             bool wasUpdated = await _carPartsCollection.UpdateAsync(id, tempPart);
@@ -79,15 +75,11 @@ namespace backend.Model
             }
         }
 
-        public async Task<CarPartGetDto> CreateCarPartAsync(CarPartCreateDto newCarPart)
+        public async Task<CarPartGetDto> CreateCarPartAsync(CarPartDto newCarPart)
         {
             if (newCarPart == null)
             {
                 throw new ArgumentNullException("Reqeust body missing");
-            }
-            if (string.IsNullOrWhiteSpace(newCarPart.Name))
-            {
-                throw new ArgumentException("Must have a name");
             }
             var now = DateTime.UtcNow;
             var tempPart = new CarPart

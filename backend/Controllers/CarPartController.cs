@@ -35,7 +35,7 @@ namespace backend.Controller
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(string id, [FromBody] CarPartUpdateDto updatedPartDto)
+        public async Task<IActionResult> Put(string id, [FromBody] CarPartDto updatedPartDto)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace backend.Controller
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CarPartCreateDto createPartDto)
+        public async Task<IActionResult> Post([FromBody] CarPartDto createPartDto)
         {
             try
             {
