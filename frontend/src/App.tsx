@@ -6,13 +6,29 @@ import { AgGridProvider, AgGridReact } from "ag-grid-react";
 
 const modules = [AllCommunityModule];
 
+function formatDate(dateString: string | undefined) {
+  if (!dateString) {
+    return "";
+  }
+
+  return new Date(dateString).toLocaleString();
+}
+
 const columnDefs: ColDef<CarPart>[] = [
-  { field: "id", headerName: "ID" },
+  { field: "id", headerName: "ID", hide: true },
   { field: "name", headerName: "Name" },
   { field: "partNumber", headerName: "Part Number" },
-  { field: "description", headerName: "Desciption" },
-  { field: "createdAt", headerName: "Created At" },
-  { field: "updatedAt", headerName: "Updated At" },
+  { field: "description", headerName: "Desciption", flex: 2 },
+  {
+    field: "createdAt",
+    headerName: "Created At",
+    valueFormatter: (params) => formatDate(params.value),
+  },
+  {
+    field: "updatedAt",
+    headerName: "Updated At",
+    valueFormatter: (params) => formatDate(params.value),
+  },
 ];
 
 const defaultColDef: ColDef<CarPart> = {
@@ -24,9 +40,6 @@ const defaultColDef: ColDef<CarPart> = {
 
 function App() {
   const { data: carParts, isLoading, isError, error } = useGetCarPartQuery();
-
-  // REMOVE LATER
-  console.log("Car parts from backeend:", carParts);
 
   if (isLoading) {
     return <p>Loading car parts</p>;
@@ -50,6 +63,8 @@ function App() {
             rowData={carParts}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
+            pagination={true}
+            paginationPageSize={10}
           />
         </div>
       </AgGridProvider>
