@@ -2,6 +2,11 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { CarPart } from "../types/CarPart";
 import type { CarPartDto } from "../types/CarPartDto";
 
+type UpdateCarPartRequest = {
+  id: string;
+  carPart: CarPartDto;
+};
+
 export const apiSlice = createApi({
   reducerPath: "api",
 
@@ -35,6 +40,15 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["CarParts"],
     }),
+
+    updateCarpart: builder.mutation<void, UpdateCarPartRequest>({
+      query: ({ id, carPart }) => ({
+        url: `carpart/${id}`,
+        method: "PUT",
+        body: carPart,
+      }),
+      invalidatesTags: ["CarParts"],
+    }),
   }),
 });
 
@@ -43,4 +57,5 @@ export const {
   useGetCarPartByIdQuery,
   useDeleteCarPartMutation,
   useCreateCarPartMutation,
+  useUpdateCarpartMutation,
 } = apiSlice;

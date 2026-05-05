@@ -2,16 +2,18 @@ import {
   AllCommunityModule,
   type ColDef,
   type ICellRendererParams,
+  type CellValueChangedEvent,
 } from "ag-grid-community";
 import "./App.css";
 import {
   useCreateCarPartMutation,
   useDeleteCarPartMutation,
   useGetCarPartsQuery,
+  useUpdateCarpartMutation,
 } from "./api/apiSlice";
 import type { CarPart } from "./types/CarPart";
 import { AgGridProvider, AgGridReact } from "ag-grid-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { CarPartDto } from "./types/CarPartDto";
 
 const modules = [AllCommunityModule];
@@ -32,11 +34,24 @@ const defaultColDef: ColDef<CarPart> = {
 };
 
 function App() {
-  const { data: carParts, isLoading, isError, error } = useGetCarPartsQuery();
+  const {
+    data: carParts,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useGetCarPartsQuery();
+
+  const rowData = useMemo(
+    () => carParts?.map((carPart) => ({ ...carPart })) ?? [],
+    [carParts],
+  );
 
   const [deleteCarPart, { isLoading: isDeleting }] = useDeleteCarPartMutation();
 
   const [createCarPart, { isLoading: isCreating }] = useCreateCarPartMutation();
+
+  const [updateCarPart] = useUpdateCarpartMutation();
 
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 
@@ -84,6 +99,38 @@ function App() {
     }
   }
 
+  async function handleCellValueChange(e: CellValueChangedEvent<CarPart>) {
+    if (!e.data) {
+      return;
+    }
+
+    if (e.oldValue === e.newValue) {
+      return;
+    }
+
+    const dto: CarPartDto = {
+      name: e.data.name.trim(),
+      partNumber: e.data.partNumber.trim(),
+      description: e.data.description.trim(),
+    };
+
+    if (!dto.name || !dto.partNumber) {
+      window.alert("Name und Teilnummer sind erforderlich");
+      refetch();
+      return;
+    }
+
+    try {
+      await updateCarPart({
+        id: e.data.id,
+        carPart: dto,
+      }).unwrap();
+    } catch (error) {
+      console.error("Aktualisierung fehlgeschlagen;", error);
+      refetch();
+    }
+  }
+
   async function handleDelete(id: string) {
     const confirmed = window.confirm(
       "Soll das Autoteil wirklich entfernt werden ?",
@@ -102,9 +149,14 @@ function App() {
 
   const columnDefs: ColDef<CarPart>[] = [
     { field: "id", headerName: "ID", hide: true },
-    { field: "name", headerName: "Name" },
-    { field: "partNumber", headerName: "Teilnummer" },
-    { field: "description", headerName: "Beschreibung", flex: 2 },
+    { field: "name", headerName: "Name", editable: true },
+    { field: "partNumber", headerName: "Teilnummer", editable: true },
+    {
+      field: "description",
+      headerName: "Beschreibung",
+      flex: 2,
+      editable: true,
+    },
     {
       field: "createdAt",
       headerName: "Erstellt am",
@@ -140,13 +192,13 @@ function App() {
   ];
 
   if (isLoading) {
-    return <p>Autoteile weren geladen</p>;
+    return <p>Autoteile weren geladen...</p>;
   }
 
   if (isError) {
     return (
       <div>
-        <h1>Autoteile konnten nicht geladen werden</h1>
+        <h1>Autoteile konnten nicht geladen werden.</h1>
         <pre>{JSON.stringify(error, null, 2)}</pre>
       </div>
     );
@@ -195,11 +247,13 @@ function App() {
       <AgGridProvider modules={modules}>
         <div style={{ height: 500 }}>
           <AgGridReact
-            rowData={carParts}
+            rowData={rowData}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             pagination={true}
             paginationPageSize={10}
+            onCellValueChanged={handleCellValueChange}
+            stopEditingWhenCellsLoseFocus={true}
           />
         </div>
       </AgGridProvider>
