@@ -1,6 +1,11 @@
-import { AllCommunityModule, type ColDef } from "ag-grid-community";
+import {
+  AllCommunityModule,
+  type ICellEditorParams,
+  type ColDef,
+  type ICellRendererParams,
+} from "ag-grid-community";
 import "./App.css";
-import { useGetCarPartQuery } from "./api/apiSlice";
+import { useDeleteCarPartMutation, useGetCarPartsQuery } from "./api/apiSlice";
 import type { CarPart } from "./types/CarPart";
 import { AgGridProvider, AgGridReact } from "ag-grid-react";
 
@@ -14,23 +19,6 @@ function formatDate(dateString: string | undefined) {
   return new Date(dateString).toLocaleString();
 }
 
-const columnDefs: ColDef<CarPart>[] = [
-  { field: "id", headerName: "ID", hide: true },
-  { field: "name", headerName: "Name" },
-  { field: "partNumber", headerName: "Part Number" },
-  { field: "description", headerName: "Desciption", flex: 2 },
-  {
-    field: "createdAt",
-    headerName: "Created At",
-    valueFormatter: (params) => formatDate(params.value),
-  },
-  {
-    field: "updatedAt",
-    headerName: "Updated At",
-    valueFormatter: (params) => formatDate(params.value),
-  },
-];
-
 const defaultColDef: ColDef<CarPart> = {
   sortable: true,
   filter: true,
@@ -39,7 +27,64 @@ const defaultColDef: ColDef<CarPart> = {
 };
 
 function App() {
-  const { data: carParts, isLoading, isError, error } = useGetCarPartQuery();
+  const { data: carParts, isLoading, isError, error } = useGetCarPartsQuery();
+
+  const [deleteCarPart, { isLoading: isDeleting }] = useDeleteCarPartMutation();
+
+  async function deleteHandel(id: string) {
+    const confirmed = window.confirm(
+      "Soll das Autoteil wirklich gelöscht werden ?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteCarPart(id).unwrap();
+    } catch (error) {
+      console.error("Löschen fehlgeschlagen!:", error);
+    }
+  }
+
+  const columnDefs: ColDef<CarPart>[] = [
+    { field: "id", headerName: "ID", hide: true },
+    { field: "name", headerName: "Name" },
+    { field: "partNumber", headerName: "Part Number" },
+    { field: "description", headerName: "Desciption", flex: 2 },
+    {
+      field: "createdAt",
+      headerName: "Created At",
+      valueFormatter: (params) => formatDate(params.value),
+    },
+    {
+      field: "updatedAt",
+      headerName: "Updated At",
+      valueFormatter: (params) => formatDate(params.value),
+    },
+    {
+      headerName: "Actions",
+      sortable: false,
+      filter: false,
+      cellRenderer: (params: ICellRendererParams<CarPart>) => {
+        if (!params.data) {
+          return null;
+        }
+
+        const id = params.data.id;
+
+        return (
+          <button
+            type="button"
+            disabled={isDeleting}
+            onClick={() => deleteHandel(id)}
+          >
+            Delete
+          </button>
+        );
+      },
+    },
+  ];
 
   if (isLoading) {
     return <p>Loading car parts</p>;
